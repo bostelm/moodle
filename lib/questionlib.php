@@ -1324,6 +1324,10 @@ class context_to_string_translator{
 function question_has_capability_on($question, $cap, $cachecat = -1) {
     global $USER, $DB;
 
+    // MDL-28687: Deleted questions may have void category. Err on the safe side.
+    if (is_object($question) && empty($question->category)) {
+        return false;
+    }
     // these are capabilities on existing questions capabilties are
     //set per category. Each of these has a mine and all version. Append 'mine' and 'all'
     $question_questioncaps = array('edit', 'view', 'use', 'move');
