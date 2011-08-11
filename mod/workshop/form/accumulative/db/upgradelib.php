@@ -65,10 +65,11 @@ function workshopform_accumulative_upgrade_legacy() {
 
         // migrate all grades for these elements (i.e. the values that reviewers put into forms)
         echo $OUTPUT->notification('Copying assessment form grades', 'notifysuccess');
-        $sql = "SELECT *
+        $sql = "SELECT id, workshopid, assessmentid, elementno, feedback, grade
                   FROM {workshop_grades_old}
                  WHERE workshopid $workshopids
-                       AND newid IS NULL";
+                       AND newid IS NULL
+                 GROUP BY workshopid, assessmentid, elementno"; // filter out duplicate ids in old data
         $rs = $DB->get_recordset_sql($sql, $params);
         $newassessmentids = workshop_upgrade_assessment_id_mappings();
         foreach ($rs as $old) {
