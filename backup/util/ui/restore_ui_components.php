@@ -164,7 +164,7 @@ abstract class restore_search_base implements renderable {
         $this->totalcount = 0;
         $contextlevel = $this->get_itemcontextlevel();
         list($sql, $params) = $this->get_searchsql();
-        $resultset = $DB->get_recordset_sql($sql, $params, 0, 250);
+        $resultset = $DB->get_recordset_sql($sql, $params);
         foreach ($resultset as $result) {
             context_instance_preload($result);
             $context = get_context_instance($contextlevel, $result->id);
@@ -181,6 +181,7 @@ abstract class restore_search_base implements renderable {
                 break;
             }
         }
+        $resultset->close();
 
         return $this->totalcount;
     }
