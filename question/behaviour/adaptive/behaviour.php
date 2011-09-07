@@ -137,9 +137,9 @@ class qbehaviour_adaptive extends question_behaviour_with_save {
 
         $pendingstep->set_fraction(max($prevbest, $this->adjusted_fraction($fraction, $prevtries)));
         if ($state == question_state::$gradedright) {
-            $pendingstep->set_state(question_state::$complete);
+            $pendingstep->set_state(question_state::$gradedright);
         } else {
-            $pendingstep->set_state(question_state::$todo);
+            $pendingstep->set_state(question_state::$complete);
         }
         $pendingstep->set_behaviour_var('_try', $prevtries + 1);
         $pendingstep->set_behaviour_var('_rawfraction', $fraction);

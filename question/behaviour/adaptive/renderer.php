@@ -107,7 +107,7 @@ class qbehaviour_adaptive_renderer extends qbehaviour_renderer {
 
         // print info about new penalty
         // penalty is relevant only if the answer is not correct and further attempts are possible
-        if (!$qa->get_state()->is_finished()) {
+        if (!$qa->get_state()->is_finished() && !$qa->get_state()->is_correct()) {
             $output .= ' ' . get_string('gradingdetailspenalty', 'qbehaviour_adaptive',
                     format_float($qa->get_question()->penalty, $options->markdp));
         }
