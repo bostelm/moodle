@@ -1282,7 +1282,7 @@ function get_user_access_sitewide($userid) {
             JOIN {$CFG->prefix}role_capabilities rco
               ON (rco.roleid=ra.roleid AND rco.contextid=sctx.id)
             WHERE ra.userid = $userid
-              AND ctx.contextlevel <= ".CONTEXT_COURSECAT."
+              AND (ctx.contextlevel = ".CONTEXT_COURSECAT." OR ctx.contextlevel = ".CONTEXT_SYSTEM.")
               AND sctx.contextlevel <= ".CONTEXT_COURSE."
             ORDER BY sctx.depth, sctx.path, ra.roleid";
     $rs = get_recordset_sql($sql);
