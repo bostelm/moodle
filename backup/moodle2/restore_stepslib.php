@@ -800,9 +800,18 @@ class restore_groups_structure_step extends restore_structure_step {
 
         $data = (object)$data;
 
-        $data->groupingid = $this->get_new_parentid('grouping'); // Use new parentid
-        $data->groupid    = $this->get_mappingid('group', $data->groupid); // Get from mappings
-        $DB->insert_record('groupings_groups', $data);  // No need to set this mapping (no child info nor files)
+        $newgroupingid = $this->get_new_parentid('grouping'); // Use new parentid
+        $newgroupid    = $this->get_mappingid('group', $data->groupid); // Get from mappings        
+        $data->groupingid = $newgroupingid;
+        $data->groupid    = $newgroupid;
+
+        $params = array();
+        $params['groupingid'] = $newgroupingid;
+        $params['groupid']    = $newgroupid;
+
+        if (!$DB->record_exists('groupings_groups', $params)) {
+            $DB->insert_record('groupings_groups', $data);  // No need to set this mapping (no child info nor files)
+        }
     }
 
     protected function after_execute() {
