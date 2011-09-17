@@ -127,7 +127,11 @@ class qbehaviour_adaptive extends question_behaviour_with_save {
             return $status;
         }
 
-        $prevtries = $this->qa->get_last_behaviour_var('_try', 0);
+        $prevstep = $this->qa->get_last_step_with_behaviour_var('_try');
+        $prevtries = $prevstep->get_behaviour_var('_try');
+        if (is_null($prevtries)) {
+            $prevtries = 0;
+        }
         $prevbest = $pendingstep->get_fraction();
         if (is_null($prevbest)) {
             $prevbest = 0;
@@ -136,7 +140,9 @@ class qbehaviour_adaptive extends question_behaviour_with_save {
         list($fraction, $state) = $this->question->grade_response($response);
 
         $pendingstep->set_fraction(max($prevbest, $this->adjusted_fraction($fraction, $prevtries)));
-        if ($state == question_state::$gradedright) {
+        if ($prevstep->get_state() == question_state::$complete) {
+            $pendingstep->set_state(question_state::$complete);            
+        } else if ($state == question_state::$gradedright) {
             $pendingstep->set_state(question_state::$complete);
         } else {
             $pendingstep->set_state(question_state::$todo);
