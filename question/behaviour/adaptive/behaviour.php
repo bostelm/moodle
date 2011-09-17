@@ -156,32 +156,34 @@ class qbehaviour_adaptive extends question_behaviour_with_save {
             return question_attempt::DISCARD;
         }
 
-        $laststep = $this->qa->get_last_step();
-        $response = $laststep->get_qt_data();
-        if (!$this->question->is_gradable_response($response)) {
-            $pendingstep->set_state(question_state::$gaveup);
-            return question_attempt::KEEP;
-        }
-
         $prevtries = $this->qa->get_last_behaviour_var('_try', 0);
-        $prevbest = $pendingstep->get_fraction();
+        $prevbest = $this->qa->get_fraction();
         if (is_null($prevbest)) {
             $prevbest = 0;
         }
 
-        if ($laststep->has_behaviour_var('_try')) {
-            // Last answer was graded, we want to regrade it. Otherwise the answer
-            // has changed, and we are grading a new try.
-            $prevtries -= 1;
+        $laststep = $this->qa->get_last_step();
+        $response = $laststep->get_qt_data();
+        if (!$this->question->is_gradable_response($response)) {
+            $state = question_state::$gaveup;
+            $fraction = 0;
+        } else {            
+
+            if ($laststep->has_behaviour_var('_try')) {
+                // Last answer was graded, we want to regrade it. Otherwise the answer
+                // has changed, and we are grading a new try.
+                $prevtries -= 1;
+            }
+
+            list($fraction, $state) = $this->question->grade_response($response);
+            
+            $pendingstep->set_behaviour_var('_try', $prevtries + 1);
+            $pendingstep->set_behaviour_var('_rawfraction', $fraction);
+            $pendingstep->set_new_response_summary($this->question->summarise_response($response));
         }
-
-        list($fraction, $state) = $this->question->grade_response($response);
-
-        $pendingstep->set_fraction(max($prevbest, $this->adjusted_fraction($fraction, $prevtries)));
+        
         $pendingstep->set_state($state);
-        $pendingstep->set_behaviour_var('_try', $prevtries + 1);
-        $pendingstep->set_behaviour_var('_rawfraction', $fraction);
-        $pendingstep->set_new_response_summary($this->question->summarise_response($response));
+        $pendingstep->set_fraction(max($prevbest, $this->adjusted_fraction($fraction, $prevtries)));
         return question_attempt::KEEP;
     }
 }
