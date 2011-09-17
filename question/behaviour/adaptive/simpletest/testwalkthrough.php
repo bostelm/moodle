@@ -102,7 +102,7 @@ class qbehaviour_adaptive_walkthrough_test extends qbehaviour_walkthrough_test_b
                 $this->get_contains_mc_radio_expectation(($rightindex + 1) % 3, true, false),
                 $this->get_contains_mc_radio_expectation(($rightindex + 2) % 3, true, false),
                 $this->get_contains_correct_expectation(),
-                new PatternExpectation('/' . preg_quote(
+                new NoPatternExpectation('/' . preg_quote(
                         get_string('gradingdetailspenalty', 'qbehaviour_adaptive',
                             format_float($mc->penalty, $this->displayoptions->markdp))) . '/'));
         $this->assertEqual('A',
@@ -133,7 +133,8 @@ class qbehaviour_adaptive_walkthrough_test extends qbehaviour_walkthrough_test_b
 
         // Now change the correct answer to the question, and regrade.
         $mc->answers[13]->fraction = -0.33333333;
-        $mc->answers[15]->fraction = 1;
+        $mc->answers[14]->fraction = 0.5; // We don't know which "wrong" index we chose above!
+        $mc->answers[15]->fraction = 0.5; // Therefore, treat answers B and C with the same score.
         $this->quba->regrade_all_questions();
 
         // Verify.
@@ -144,7 +145,7 @@ class qbehaviour_adaptive_walkthrough_test extends qbehaviour_walkthrough_test_b
                 $this->get_contains_partcorrect_expectation());
 
         $autogradedstep = $this->get_step($this->get_step_count() - 2);
-        $this->assertWithinMargin($autogradedstep->get_fraction(), 0, 0.0000001);
+        $this->assertWithinMargin($autogradedstep->get_fraction(), 0.5, 0.0000001);
     }
 
     public function test_adaptive_multichoice2() {
@@ -196,6 +197,206 @@ class qbehaviour_adaptive_walkthrough_test extends qbehaviour_walkthrough_test_b
                 $this->get_contains_correct_expectation());
     }
 
+    public function test_adaptive_shortanswer_partially_right() {
+        
+        // Create a short answer question 
+        $sa = test_question_maker::make_a_shortanswer_question();
+        $this->start_attempt_at_question($sa, 'adaptive');
+        
+        // Check the initial state.
+        $this->check_current_state(question_state::$todo);
+        $this->check_current_mark(null);
+        $this->check_current_output(
+                $this->get_contains_marked_out_of_summary(),
+                $this->get_contains_submit_button_expectation(true),
+                $this->get_does_not_contain_feedback_expectation());
+        
+        // Submit a partially correct answer.
+        $this->process_submission(array('-submit' => 1, 'answer' => 'toad'));
+        
+        // Verify.
+        $this->check_current_state(question_state::$todo);
+        $this->check_current_mark(0.8);
+        $this->check_current_output(
+                $this->get_contains_mark_summary(0.8),
+                $this->get_contains_submit_button_expectation(true),
+                $this->get_contains_partcorrect_expectation(),
+                $this->get_does_not_contain_validation_error_expectation());
+        
+        // Submit an incorrect answer.
+        $this->process_submission(array('-submit' => 1, 'answer' => 'bumblebee'));
+        
+        // Verify.
+        $this->check_current_state(question_state::$todo);
+        $this->check_current_mark(0.8);
+        $this->check_current_output(
+                $this->get_contains_mark_summary(0.8),
+                $this->get_contains_submit_button_expectation(true),
+                $this->get_contains_incorrect_expectation(),
+                $this->get_does_not_contain_validation_error_expectation());
+        
+        // Submit a correct answer.
+        $this->process_submission(array('-submit' => 1, 'answer' => 'frog'));
+        
+        // Verify.
+        $this->check_current_state(question_state::$complete);
+        $this->check_current_mark(0.8);
+        $this->check_current_output(
+                $this->get_contains_mark_summary(0.8),
+                $this->get_contains_submit_button_expectation(true),
+                $this->get_contains_correct_expectation(),
+                $this->get_does_not_contain_validation_error_expectation());
+        
+        // Finish the attempt.
+        $this->quba->finish_all_questions();
+        
+        // Verify.
+        $this->check_current_state(question_state::$gradedright);
+        $this->check_current_mark(0.8);
+        $this->check_current_output(
+                $this->get_contains_mark_summary(0.8),
+                $this->get_contains_submit_button_expectation(false),
+                $this->get_contains_correct_expectation(),
+                $this->get_does_not_contain_validation_error_expectation());                
+    }
+    
+    public function test_adaptive_shortanswer_wrong_right_wrong() {
+        
+        // Create a short answer question 
+        $sa = test_question_maker::make_a_shortanswer_question();
+        $this->start_attempt_at_question($sa, 'adaptive');
+        
+        // Check the initial state.
+        $this->check_current_state(question_state::$todo);
+        $this->check_current_mark(null);
+        $this->check_current_output(
+                $this->get_contains_marked_out_of_summary(),
+                $this->get_contains_submit_button_expectation(true),
+                $this->get_does_not_contain_feedback_expectation());
+        
+        // Submit a wrong answer.
+        $this->process_submission(array('-submit' => 1, 'answer' => 'hippopotamus'));
+        
+        // Verify.
+        $this->check_current_state(question_state::$todo);
+        $this->check_current_mark(0);
+        $this->check_current_output(
+                $this->get_contains_mark_summary(0),
+                $this->get_contains_submit_button_expectation(true),
+                $this->get_contains_incorrect_expectation(),
+                $this->get_does_not_contain_validation_error_expectation());
+        
+        // Submit a correct answer.
+        $this->process_submission(array('-submit' => 1, 'answer' => 'frog'));
+        
+        // Verify.
+        $this->check_current_state(question_state::$complete);
+        $this->check_current_mark(0.66666667);
+        $this->check_current_output(
+                $this->get_contains_mark_summary(0.67),
+                $this->get_contains_submit_button_expectation(true),
+                $this->get_contains_correct_expectation(),
+                $this->get_does_not_contain_validation_error_expectation());
+        
+        // Submit another incorrect answer.
+        $this->process_submission(array('-submit' => 1, 'answer' => 'bumblebee'));
+        
+        // Verify.
+        $this->check_current_state(question_state::$complete);
+        $this->check_current_mark(0.66666667);
+        $this->check_current_output(
+                $this->get_contains_mark_summary(0.67),
+                $this->get_contains_submit_button_expectation(true),
+                $this->get_contains_incorrect_expectation(),
+                $this->get_does_not_contain_validation_error_expectation());
+        
+        // Finish the attempt.
+        $this->quba->finish_all_questions();
+        
+        // Verify.
+        $this->check_current_state(question_state::$gradedwrong);
+        $this->check_current_mark(0.66666667);
+        $this->check_current_output(
+                $this->get_contains_mark_summary(0.67),
+                $this->get_contains_submit_button_expectation(false),
+                $this->get_contains_incorrect_expectation(),
+                $this->get_does_not_contain_validation_error_expectation());                
+    }
+    
+    public function test_adaptive_shortanswer_invalid_after_complete() {
+        
+        // Create a short answer question 
+        $sa = test_question_maker::make_a_shortanswer_question();
+        $this->start_attempt_at_question($sa, 'adaptive');
+        
+        // Check the initial state.
+        $this->check_current_state(question_state::$todo);
+        $this->check_current_mark(null);
+        $this->check_current_output(
+                $this->get_contains_marked_out_of_summary(),
+                $this->get_contains_submit_button_expectation(true),
+                $this->get_does_not_contain_feedback_expectation());
+        
+        // Submit a wrong answer.
+        $this->process_submission(array('-submit' => 1, 'answer' => 'hippopotamus'));
+        
+        // Verify.
+        $this->check_current_state(question_state::$todo);
+        $this->check_current_mark(0);
+        $this->check_current_output(
+                $this->get_contains_mark_summary(0),
+                $this->get_contains_submit_button_expectation(true),
+                $this->get_contains_incorrect_expectation(),
+                $this->get_does_not_contain_validation_error_expectation());
+        
+        // Submit a correct answer.
+        $this->process_submission(array('-submit' => 1, 'answer' => 'frog'));
+        
+        // Verify.
+        $this->check_current_state(question_state::$complete);
+        $this->check_current_mark(0.66666667);
+        $this->check_current_output(
+                $this->get_contains_mark_summary(0.67),
+                $this->get_contains_submit_button_expectation(true),
+                $this->get_contains_correct_expectation(),
+                $this->get_does_not_contain_validation_error_expectation());
+        
+        // Submit an empty answer.
+        $this->process_submission(array('-submit' => 1, 'answer' => ''));
+        
+        // Verify.
+        $this->check_current_state(question_state::$invalid);
+        $this->check_current_mark(0.66666667);
+        $this->check_current_output(
+                $this->get_contains_mark_summary(0.67),
+                $this->get_contains_submit_button_expectation(true),
+                $this->get_contains_validation_error_expectation());
+        
+        // Submit another wrong answer.
+        $this->process_submission(array('-submit' => 1, 'answer' => 'bumblebee'));
+        
+        // Verify.
+        $this->check_current_state(question_state::$complete);
+        $this->check_current_mark(0.66666667);
+        $this->check_current_output(
+                $this->get_contains_mark_summary(0.67),
+                $this->get_contains_submit_button_expectation(true),
+                $this->get_contains_incorrect_expectation(),
+                $this->get_does_not_contain_validation_error_expectation());
+        
+        // Finish the attempt.
+        $this->quba->finish_all_questions();
+        
+        // Verify.
+        $this->check_current_state(question_state::$gradedwrong);
+        $this->check_current_mark(0.66666667);
+        $this->check_current_output(
+                $this->get_contains_mark_summary(0.67),
+                $this->get_contains_submit_button_expectation(false),
+                $this->get_contains_incorrect_expectation(),
+                $this->get_does_not_contain_validation_error_expectation());        
+    }
+    
     public function test_adaptive_shortanswer_try_to_submit_blank() {
 
         // Create a short answer question with correct answer true.
@@ -247,4 +448,57 @@ class qbehaviour_adaptive_walkthrough_test extends qbehaviour_walkthrough_test_b
                 $this->get_contains_partcorrect_expectation(),
                 $this->get_contains_validation_error_expectation());
     }
+    
+    public function test_adaptive_numerical() {
+        
+        // Create a numerical question 
+        $sa = test_question_maker::make_question('numerical', 'pi');
+        $this->start_attempt_at_question($sa, 'adaptive');
+        
+        // Check the initial state.
+        $this->check_current_state(question_state::$todo);
+        $this->check_current_mark(null);
+        $this->check_current_output(
+                $this->get_contains_marked_out_of_summary(),
+                $this->get_contains_submit_button_expectation(true),
+                $this->get_does_not_contain_feedback_expectation());
+        
+        
+        // Submit the correct answer.
+        $this->process_submission(array('-submit' => 1, 'answer' => '3.14'));
+        
+        // Verify.
+        $this->check_current_state(question_state::$complete);
+        $this->check_current_mark(1);
+        $this->check_current_output(
+                $this->get_contains_mark_summary(1),
+                $this->get_contains_submit_button_expectation(true),
+                $this->get_contains_correct_expectation(),
+                $this->get_does_not_contain_validation_error_expectation());
+        
+        // Submit an incorrect answer.
+        $this->process_submission(array('-submit' => 1, 'answer' => '-5'));
+        
+        // Verify.
+        $this->check_current_state(question_state::$complete);
+        $this->check_current_mark(1);
+        $this->check_current_output(
+                $this->get_contains_mark_summary(1),
+                $this->get_contains_submit_button_expectation(true),
+                $this->get_contains_incorrect_expectation(),
+                $this->get_does_not_contain_validation_error_expectation());
+        
+        // Finish the attempt.
+        $this->quba->finish_all_questions();
+        
+        // Verify.
+        $this->check_current_state(question_state::$gradedwrong);
+        $this->check_current_mark(1);
+        $this->check_current_output(
+                $this->get_contains_mark_summary(1),
+                $this->get_contains_submit_button_expectation(false),
+                $this->get_contains_incorrect_expectation(),
+                $this->get_does_not_contain_validation_error_expectation());        
+    }
+    
 }
