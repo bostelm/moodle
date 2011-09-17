@@ -136,6 +136,14 @@ abstract class question_state {
     }
 
     /**
+     * Is this state one of the ones where the student can still improve their score?
+     * @return bool
+     */
+    public function is_improvable() {
+        return false;
+    }
+    
+    /**
      * Is this state one of the ones that mean the question attempt has been graded?
      * @return bool
      */
@@ -307,6 +315,9 @@ class question_state_unprocessed extends question_state {
 }
 class question_state_todo extends question_state {
     public function is_active() {
+        return true;
+    }
+    public function is_improvable() {
         return true;
     }
     public function is_finished() {
