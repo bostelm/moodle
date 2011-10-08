@@ -88,6 +88,17 @@ class qbehaviour_adaptive_renderer extends qbehaviour_renderer {
     }
 
     /**
+     * Determine whether a question state represents an "improvable" result,
+     * that is, whether the user can still improve their score.
+     * 
+     * @param question_state $state the question state.
+     * @return bool whether the state is improvable
+     */
+    protected function is_state_improvable(question_state $state) {
+        return $state == question_state::$todo;
+    }
+    
+    /**
      * Display the information about the penalty calculations.
      * @param question_attempt $qa the question attempt.
      * @param object $mark contains information about the current mark.
@@ -106,8 +117,8 @@ class qbehaviour_adaptive_renderer extends qbehaviour_renderer {
         }
 
         // print info about new penalty
-        // penalty is relevant only if the answer is not correct and further attempts are possible
-        if (!$qa->get_state()->is_finished()) {
+        // penalty is relevant only if the answer can be improved further
+        if ($this->is_state_improvable($qa->get_state())) {
             $output .= ' ' . get_string('gradingdetailspenalty', 'qbehaviour_adaptive',
                     format_float($qa->get_question()->penalty, $options->markdp));
         }
