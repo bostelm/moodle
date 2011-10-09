@@ -303,6 +303,19 @@ class qbehaviour_adaptive_walkthrough_test extends qbehaviour_walkthrough_test_b
                 $this->get_contains_penalty_info_expectation(0.33),
                 $this->get_does_not_contain_validation_error_expectation());
         
+        // Submit the same wrong answer again. Nothing should change.
+        $this->process_submission(array('-submit' => 1, 'answer' => 'hippopotamus'));
+        
+        // Verify.
+        $this->check_current_state(question_state::$todo);
+        $this->check_current_mark(0);
+        $this->check_current_output(
+                $this->get_contains_mark_summary(0),
+                $this->get_contains_submit_button_expectation(true),
+                $this->get_contains_incorrect_expectation(),
+                $this->get_contains_penalty_info_expectation(0.33),
+                $this->get_does_not_contain_validation_error_expectation());
+
         // Submit a correct answer.
         $this->process_submission(array('-submit' => 1, 'answer' => 'frog'));
         
