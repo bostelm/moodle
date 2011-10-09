@@ -128,10 +128,15 @@ class qbehaviour_adaptive extends question_behaviour_with_save {
         }
 
         $prevstep = $this->qa->get_last_step_with_behaviour_var('_try');
+        $prevresponse = $prevstep->get_qt_data();
         $prevtries = $this->qa->get_last_behaviour_var('_try', 0);
         $prevbest = $pendingstep->get_fraction();
         if (is_null($prevbest)) {
             $prevbest = 0;
+        }
+        
+        if ($this->question->is_same_response($response, $prevresponse)) {
+            return question_attempt::DISCARD;
         }
 
         list($fraction, $state) = $this->question->grade_response($response);
