@@ -195,15 +195,15 @@ class qbehaviour_adaptive extends question_behaviour_with_save {
     /**
      * Got the most recently graded step. This is mainly intended for use by the
      * renderer.
-     * @return question_attempt_step|null the most recently graded step.
+     * @return question_attempt_step the most recently graded step.
      */
     public function get_graded_step() {
-        foreach ($this->qa->get_reverse_step_iterator() as $step) {
-            if ($step->has_behaviour_var('_try')) {
-                return $step;
-            }
+        $step = $this->qa->get_last_step_with_behaviour_var('_try');
+        if ($step->has_behaviour_var('_try')) {
+            return $step;
+        } else {
+            return null;
         }
-        return null;
     }
 
     /**
