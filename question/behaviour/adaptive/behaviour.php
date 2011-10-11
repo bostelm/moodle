@@ -134,7 +134,7 @@ class qbehaviour_adaptive extends question_behaviour_with_save {
         if (is_null($prevbest)) {
             $prevbest = 0;
         }
-        
+
         if ($this->question->is_same_response($response, $prevresponse)) {
             return question_attempt::DISCARD;
         }
@@ -143,7 +143,7 @@ class qbehaviour_adaptive extends question_behaviour_with_save {
 
         $pendingstep->set_fraction(max($prevbest, $this->adjusted_fraction($fraction, $prevtries)));
         if ($prevstep->get_state() == question_state::$complete) {
-            $pendingstep->set_state(question_state::$complete);            
+            $pendingstep->set_state(question_state::$complete);
         } else if ($state == question_state::$gradedright) {
             $pendingstep->set_state(question_state::$complete);
         } else {
@@ -172,7 +172,7 @@ class qbehaviour_adaptive extends question_behaviour_with_save {
         if (!$this->question->is_gradable_response($response)) {
             $state = question_state::$gaveup;
             $fraction = 0;
-        } else {            
+        } else {
 
             if ($laststep->has_behaviour_var('_try')) {
                 // Last answer was graded, we want to regrade it. Otherwise the answer
@@ -181,12 +181,12 @@ class qbehaviour_adaptive extends question_behaviour_with_save {
             }
 
             list($fraction, $state) = $this->question->grade_response($response);
-            
+
             $pendingstep->set_behaviour_var('_try', $prevtries + 1);
             $pendingstep->set_behaviour_var('_rawfraction', $fraction);
             $pendingstep->set_new_response_summary($this->question->summarise_response($response));
         }
-        
+
         $pendingstep->set_state($state);
         $pendingstep->set_fraction(max($prevbest, $this->adjusted_fraction($fraction, $prevtries)));
         return question_attempt::KEEP;
@@ -209,7 +209,7 @@ class qbehaviour_adaptive extends question_behaviour_with_save {
     /**
      * Determine whether a question state represents an "improvable" result,
      * that is, whether the user can still improve their score.
-     * 
+     *
      * @param question_state $state the question state.
      * @return bool whether the state is improvable
      */
