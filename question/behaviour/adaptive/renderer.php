@@ -36,13 +36,6 @@ defined('MOODLE_INTERNAL') || die();
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class qbehaviour_adaptive_renderer extends qbehaviour_renderer {
-    protected function get_graded_step(question_attempt $qa) {
-        foreach ($qa->get_reverse_step_iterator() as $step) {
-            if ($step->has_behaviour_var('_try')) {
-                return $step;
-            }
-        }
-    }
 
     public function controls(question_attempt $qa, question_display_options $options) {
         return $this->submit_button($qa, $options);
@@ -51,7 +44,7 @@ class qbehaviour_adaptive_renderer extends qbehaviour_renderer {
     public function feedback(question_attempt $qa, question_display_options $options) {
         // Try to find the last graded step.
 
-        $gradedstep = $this->get_graded_step($qa);
+        $gradedstep = $qa->get_behaviour()->get_graded_step($qa);
         if (is_null($gradedstep) || $qa->get_max_mark() == 0 ||
                 $options->marks < question_display_options::MARK_AND_MAX) {
             return '';
@@ -88,17 +81,6 @@ class qbehaviour_adaptive_renderer extends qbehaviour_renderer {
     }
 
     /**
-     * Determine whether a question state represents an "improvable" result,
-     * that is, whether the user can still improve their score.
-     * 
-     * @param question_state $state the question state.
-     * @return bool whether the state is improvable
-     */
-    protected function is_state_improvable(question_state $state) {
-        return $state == question_state::$todo;
-    }
-    
-    /**
      * Display the information about the penalty calculations.
      * @param question_attempt $qa the question attempt.
      * @param object $mark contains information about the current mark.
@@ -111,14 +93,13 @@ class qbehaviour_adaptive_renderer extends qbehaviour_renderer {
         }
         $output = '';
 
-        // print details of grade adjustment due to penalties
+        // Print details of grade adjustment due to penalties
         if ($mark->raw != $mark->cur) {
             $output .= ' ' . get_string('gradingdetailsadjustment', 'qbehaviour_adaptive', $mark);
         }
 
-        // print info about new penalty
-        // penalty is relevant only if the answer can be improved further
-        if ($this->is_state_improvable($qa->get_state())) {
+        // Print information about any new penalty, only relevant if the answer can be improved.
+        if ($qa->get_behaviour()->is_state_improvable($qa->get_state())) {
             $output .= ' ' . get_string('gradingdetailspenalty', 'qbehaviour_adaptive',
                     format_float($qa->get_question()->penalty, $options->markdp));
         }
