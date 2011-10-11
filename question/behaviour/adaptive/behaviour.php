@@ -191,4 +191,29 @@ class qbehaviour_adaptive extends question_behaviour_with_save {
         $pendingstep->set_fraction(max($prevbest, $this->adjusted_fraction($fraction, $prevtries)));
         return question_attempt::KEEP;
     }
+
+    /**
+     * Got the most recently graded step. This is mainly intended for use by the
+     * renderer.
+     * @return question_attempt_step|null the most recently graded step.
+     */
+    public function get_graded_step() {
+        foreach ($this->qa->get_reverse_step_iterator() as $step) {
+            if ($step->has_behaviour_var('_try')) {
+                return $step;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Determine whether a question state represents an "improvable" result,
+     * that is, whether the user can still improve their score.
+     * 
+     * @param question_state $state the question state.
+     * @return bool whether the state is improvable
+     */
+    public function is_state_improvable(question_state $state) {
+        return $state == question_state::$todo;
+    }
 }
