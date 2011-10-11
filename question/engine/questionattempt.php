@@ -429,7 +429,7 @@ class question_attempt {
         }
         return new question_attempt_step_read_only();
     }
-    
+
     /**
      * Get the latest value of a particular question type variable. That is, get
      * the value from the latest step that has it set. Return null if it is not
