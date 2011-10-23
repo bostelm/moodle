@@ -61,7 +61,7 @@ if ($userid) {
 
 /// require login to access notes
 require_login($course);
-add_to_log($courseid, 'notes', 'view', 'index.php?course='.$courseid.'&amp;user='.$userid, 'view notes');
+add_to_log($courseid, 'notes', 'view', 'index.php?course='.$courseid.'&user='.$userid, 'view notes');
 
 if (empty($CFG->enablenotes)) {
     print_error('notesdisabled', 'notes');

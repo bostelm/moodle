@@ -65,16 +65,16 @@ $noteform->set_data($note);
 
 /// if form was cancelled then return to the notes list of the note
 if ($noteform->is_cancelled()) {
-    redirect($CFG->wwwroot . '/notes/index.php?course=' . $note->courseid . '&amp;user=' . $note->userid);
+    redirect($CFG->wwwroot . '/notes/index.php?course=' . $note->courseid . '&user=' . $note->userid);
 }
 
 /// if data was submitted and validated, then save it to database
 if ($note = $noteform->get_data()){
     if (note_save($note)) {
-        add_to_log($note->courseid, 'notes', 'update', 'index.php?course='.$note->courseid.'&amp;user='.$note->userid . '#note-' . $note->id, 'update note');
+        add_to_log($note->courseid, 'notes', 'update', 'index.php?course='.$note->courseid.'&user='.$note->userid . '#note-' . $note->id, 'update note');
     }
     // redirect to notes list that contains this note
-    redirect($CFG->wwwroot . '/notes/index.php?course=' . $note->courseid . '&amp;user=' . $note->userid);
+    redirect($CFG->wwwroot . '/notes/index.php?course=' . $note->courseid . '&user=' . $note->userid);
 }
 
 if ($noteid) {
