@@ -122,6 +122,8 @@ class backup_assign_activity_structure_step extends backup_activity_structure_st
         $assign->set_source_table('assign', array('id' => backup::VAR_ACTIVITYID));
         $pluginconfig->set_source_table('assign_plugin_config',
                                         array('assignment' => backup::VAR_PARENTID));
+        // Support 1 type of subplugin without user info.
+        $this->add_subplugin_structure('assigncontent', $assign, true);
 
         if ($userinfo) {
             $userflag->set_source_table('assign_user_flags',
@@ -133,7 +135,7 @@ class backup_assign_activity_structure_step extends backup_activity_structure_st
             $grade->set_source_table('assign_grades',
                                      array('assignment' => backup::VAR_PARENTID));
 
-            // Support 2 types of subplugins.
+            // Support 2 types of subplugins with user info.
             $this->add_subplugin_structure('assignsubmission', $submission, true);
             $this->add_subplugin_structure('assignfeedback', $grade, true);
         }

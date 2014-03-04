@@ -264,6 +264,9 @@ $ADMIN->add('assignsubmissionplugins', new assign_admin_page_manage_assign_plugi
 $ADMIN->add('modassignfolder', new admin_category('assignfeedbackplugins',
     new lang_string('feedbackplugins', 'assign'), !$module->is_enabled()));
 $ADMIN->add('assignfeedbackplugins', new assign_admin_page_manage_assign_plugins('assignfeedback'));
+$ADMIN->add('modassignfolder', new admin_category('assigncontentplugins',
+                new lang_string('contentplugins', 'assign'), !$module->is_enabled()));
+$ADMIN->add('assigncontentplugins', new assign_admin_page_manage_assign_plugins('assigncontent'));
 
 foreach (core_plugin_manager::instance()->get_plugins_of_type('assignsubmission') as $plugin) {
     /** @var \mod_assign\plugininfo\assignsubmission $plugin */
@@ -273,4 +276,9 @@ foreach (core_plugin_manager::instance()->get_plugins_of_type('assignsubmission'
 foreach (core_plugin_manager::instance()->get_plugins_of_type('assignfeedback') as $plugin) {
     /** @var \mod_assign\plugininfo\assignfeedback $plugin */
     $plugin->load_settings($ADMIN, 'assignfeedbackplugins', $hassiteconfig);
+}
+
+foreach (core_plugin_manager::instance()->get_plugins_of_type('assigncontent') as $plugin) {
+    /** @var \mod_assign\plugininfo\assigncontent $plugin */
+    $plugin->load_settings($ADMIN, 'assigncontentplugins', $hassiteconfig);
 }

@@ -162,6 +162,16 @@ class assign_upgrade_manager {
                     $plugin->disable();
                 }
             }
+            foreach ($newassignment->get_content_plugins() as $plugin) {
+                if ($plugin->can_upgrade($oldassignment->assignmenttype, $oldversion)) {
+                    $plugin->enable();
+                    if (!$plugin->upgrade_settings($oldcontext, $oldassignment, $log)) {
+                        $rollback = true;
+                    }
+                } else {
+                    $plugin->disable();
+                }
+            }
 
             // See if there is advanced grading upgrades required.
             $gradingarea = $DB->get_record('grading_areas',

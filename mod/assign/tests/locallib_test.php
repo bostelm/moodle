@@ -71,6 +71,16 @@ class mod_assign_locallib_testcase extends mod_assign_base_testcase {
         }
     }
 
+    public function test_get_content_plugins() {
+        $this->setUser($this->editingteachers[0]);
+        $assign = $this->create_instance();
+        $installedplugins = array_keys(core_component::get_plugin_list('assigncontent'));
+
+        foreach ($assign->get_content_plugins() as $plugin) {
+            $this->assertContains($plugin->get_type(), $installedplugins, 'Content plugin not in list of installed plugins');
+        }
+    }
+
     public function test_is_blind_marking() {
         $this->setUser($this->editingteachers[0]);
         $assign = $this->create_instance(array('blindmarking'=>1));
