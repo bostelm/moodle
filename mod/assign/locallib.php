@@ -60,6 +60,7 @@ require_once($CFG->libdir . '/gradelib.php');
 require_once($CFG->dirroot . '/grade/grading/lib.php');
 require_once($CFG->dirroot . '/mod/assign/feedbackplugin.php');
 require_once($CFG->dirroot . '/mod/assign/submissionplugin.php');
+require_once($CFG->dirroot . '/mod/assign/contentplugin.php');
 require_once($CFG->dirroot . '/mod/assign/renderable.php');
 require_once($CFG->dirroot . '/mod/assign/gradingtable.php');
 require_once($CFG->libdir . '/eventslib.php');
@@ -108,6 +109,9 @@ class assign {
     /** @var array list of the installed feedback plugins */
     private $feedbackplugins;
 
+    /** @var array list of the installed content plugins */
+    private $contentplugins;
+
     /** @var string action to be used to return to this page
      *              (without repeating any form submissions etc).
      */
@@ -152,6 +156,7 @@ class assign {
 
         $this->submissionplugins = $this->load_plugins('assignsubmission');
         $this->feedbackplugins = $this->load_plugins('assignfeedback');
+        $this->contentplugins = $this->load_plugins('assigncontent');
     }
 
     /**
@@ -260,6 +265,15 @@ class assign {
     }
 
     /**
+     * Get list of content plugins installed.
+     *
+     * @return array
+     */
+    public function get_content_plugins() {
+        return $this->contentplugins;
+    }
+
+    /**
      * Is blind marking enabled and reveal identities not set yet?
      *
      * @return bool
@@ -283,16 +297,16 @@ class assign {
     }
 
     /**
-     * Get a specific submission plugin by its type.
+     * Get a specific plugin by its type.
      *
-     * @param string $subtype assignsubmission | assignfeedback
+     * @param string $subtype assignsubmission | assignfeedback | assigncontent
      * @param string $type
      * @return mixed assign_plugin|null
      */
     public function get_plugin_by_type($subtype, $type) {
         $shortsubtype = substr($subtype, strlen('assign'));
         $name = $shortsubtype . 'plugins';
-        if ($name != 'feedbackplugins' && $name != 'submissionplugins') {
+        if ($name != 'feedbackplugins' && $name != 'submissionplugins' && $name != 'contentplugins') {
             return null;
         }
         $pluginlist = $this->$name;
@@ -322,6 +336,16 @@ class assign {
      */
     public function get_submission_plugin_by_type($type) {
         return $this->get_plugin_by_type('assignsubmission', $type);
+    }
+
+    /**
+     * Get a content plugin by type.
+     *
+     * @param string $type - The type of plugin e.g problemsheet
+     * @return mixed assign_content_plugin|null
+     */
+    public function get_content_plugin_by_type($type) {
+        return $this->get_plugin_by_type('assigncontent', $type);
     }
 
     /**
@@ -611,6 +635,12 @@ class assign {
                     return false;
                 }
             }
+            foreach ($this->contentplugins as $plugin) {
+                if (!$this->update_plugin_instance($plugin, $formdata)) {
+                    print_error($plugin->get_error());
+                    return false;
+                }
+            }
 
             // In the case of upgrades the coursemodule has not been set,
             // so we need to wait before calling these two.
@@ -662,6 +692,12 @@ class assign {
             }
         }
         foreach ($this->feedbackplugins as $plugin) {
+            if (!$plugin->delete_instance()) {
+                print_error($plugin->get_error());
+                $result = false;
+            }
+        }
+        foreach ($this->contentplugins as $plugin) {
             if (!$plugin->delete_instance()) {
                 print_error($plugin->get_error());
                 $result = false;
@@ -953,6 +989,12 @@ class assign {
                 return false;
             }
         }
+        foreach ($this->contentplugins as $plugin) {
+            if (!$this->update_plugin_instance($plugin, $formdata)) {
+                print_error($plugin->get_error());
+                return false;
+            }
+        }
 
         $this->update_calendar($this->get_course_module()->id);
         $this->update_gradebook(false, $this->get_course_module()->id);
@@ -1026,6 +1068,15 @@ class assign {
      * @return void
      */
     public function add_all_plugin_settings(MoodleQuickForm $mform) {
+        $mform->addElement('header', 'contenttypes', get_string('contenttypes', 'assign'));
+
+        $contentpluginsenabled = array();
+        $group = $mform->addGroup(array(), 'contentplugins', get_string('contenttypes', 'assign'), array(' '), false);
+        foreach ($this->contentplugins as $plugin) {
+            $this->add_plugin_settings($plugin, $mform, $contentpluginsenabled);
+        }
+        $group->setElements($contentpluginsenabled);
+
         $mform->addElement('header', 'submissiontypes', get_string('submissiontypes', 'assign'));
 
         $submissionpluginsenabled = array();
@@ -1042,6 +1093,7 @@ class assign {
             $this->add_plugin_settings($plugin, $mform, $feedbackpluginsenabled);
         }
         $group->setElements($feedbackpluginsenabled);
+        $mform->setExpanded('contenttypes');
         $mform->setExpanded('submissiontypes');
     }
 
@@ -1059,6 +1111,11 @@ class assign {
             }
         }
         foreach ($this->feedbackplugins as $plugin) {
+            if ($plugin->is_visible()) {
+                $plugin->data_preprocessing($defaultvalues);
+            }
+        }
+        foreach ($this->contentplugins as $plugin) {
             if ($plugin->is_visible()) {
                 $plugin->data_preprocessing($defaultvalues);
             }
@@ -3965,6 +4022,13 @@ class assign {
                                                       $this->show_intro(),
                                                       $this->get_course_module()->id));
 
+        foreach ($this->get_content_plugins() as $plugin) {
+            if ($plugin->is_enabled() && $plugin->is_visible()) {
+                $plugincontent = new assign_content_plugin_content($plugin);
+                $o .= $this->get_renderer()->render($plugincontent);
+            }
+        }
+
         if ($this->can_view_grades()) {
             $draft = ASSIGN_SUBMISSION_STATUS_DRAFT;
             $submitted = ASSIGN_SUBMISSION_STATUS_SUBMITTED;
@@ -6632,6 +6696,11 @@ class assign {
             }
         }
         foreach ($this->feedbackplugins as $plugin) {
+            if ($plugin->can_upgrade($type, $version)) {
+                return true;
+            }
+        }
+        foreach ($this->contentplugins as $plugin) {
             if ($plugin->can_upgrade($type, $version)) {
                 return true;
             }

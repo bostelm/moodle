@@ -882,6 +882,16 @@ function assign_cron() {
             $class::cron();
         }
     }
+    $plugins = core_component::get_plugin_list('assigncontent');
+
+    foreach ($plugins as $name => $plugin) {
+        $disabled = get_config('assigncontent_' . $name, 'disabled');
+        if (!$disabled) {
+            $class = 'assign_content_' . $name;
+            require_once($CFG->dirroot . '/mod/assign/content/' . $name . '/locallib.php');
+            $class::cron();
+        }
+    }
 }
 
 /**
@@ -1035,6 +1045,15 @@ function assign_get_file_areas($course, $cm, $context) {
             }
         }
     }
+    foreach ($assignment->get_content_plugins() as $plugin) {
+        if ($plugin->is_visible()) {
+            $pluginareas = $plugin->get_file_areas();
+
+            if ($pluginareas) {
+                $areas = array_merge($areas, $pluginareas);
+            }
+        }
+    }
 
     return $areas;
 }
@@ -1088,6 +1107,18 @@ function assign_get_file_info($browser,
     }
     if (!$pluginowner) {
         foreach ($assignment->get_feedback_plugins() as $plugin) {
+            if ($plugin->is_visible()) {
+                $pluginareas = $plugin->get_file_areas();
+
+                if (array_key_exists($filearea, $pluginareas)) {
+                    $pluginowner = $plugin;
+                    break;
+                }
+            }
+        }
+    }
+    if (!$pluginowner) {
+        foreach ($assignment->get_content_plugins() as $plugin) {
             if ($plugin->is_visible()) {
                 $pluginareas = $plugin->get_file_areas();
 

@@ -15,13 +15,15 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Definition of sub-plugins
+ * This file contains the version information for the problemsheet content plugin
  *
- * @package   mod_assign
- * @copyright 2012 NetSpot {@link http://www.netspot.com.au}
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   assigncontent_problemsheet
+ * @copyright 2014 Henning Bostelmann
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$subplugins = array('assignsubmission' => 'mod/assign/submission',
-                     'assignfeedback' => 'mod/assign/feedback',
-                     'assigncontent' => 'mod/assign/content');
+defined('MOODLE_INTERNAL') || die();
+
+$plugin->version   = 2014030400;
+$plugin->requires  = 2013110500;
+$plugin->component = 'assigncontent_problemsheet';

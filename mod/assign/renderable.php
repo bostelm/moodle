@@ -209,6 +209,28 @@ class assign_feedback_plugin_feedback implements renderable {
 }
 
 /**
+ * Implements the renderable content of a content plugin
+ * @package   mod_assign
+ * @copyright 2014 Henning Bostelmann
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class assign_content_plugin_content implements renderable {
+
+    /** @var assign_submission_plugin $plugin */
+    public $plugin = null;
+
+    /**
+     * Content of a single plugin
+     *
+     * @param assign_content_plugin $plugin
+     */
+    public function __construct(assign_content_plugin $plugin) {
+        $this->plugin = $plugin;
+    }
+
+}
+
+/**
  * Implements a renderable submission plugin submission
  * @package   mod_assign
  * @copyright 2012 NetSpot {@link http://www.netspot.com.au}
@@ -576,6 +598,30 @@ class assign_header implements renderable {
         $this->coursemoduleid = $coursemoduleid;
         $this->subpage = $subpage;
         $this->preface = $preface;
+    }
+}
+
+/**
+ * Renderable content
+ * @package   mod_assign
+ * @copyright 2014 Henning Bostelmann
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class assign_content implements renderable {
+    /** @var stdClass the assign record  */
+    public $assign = null;
+    /** @var array the list of content plugins to render */
+    public $contentplugins = array();
+
+    /**
+     * Constructor
+     * @param stdClass $assign the assignment record
+     * @param array $contentplugins the list of content plugins to render
+     */
+    public function __construct(stdClass $assign,
+                    array $contentplugins) {
+        $this->assign = $assign;
+        $this->contentplugins = $contentplugins;
     }
 }
 

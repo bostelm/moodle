@@ -15,13 +15,18 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Definition of sub-plugins
+ * Strings for component 'assigncontent_problemsheet', language 'en'
  *
- * @package   mod_assign
- * @copyright 2012 NetSpot {@link http://www.netspot.com.au}
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   assigncontent_problemsheet
+ * @copyright 2014 Henning Bostelmann
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$subplugins = array('assignsubmission' => 'mod/assign/submission',
-                     'assignfeedback' => 'mod/assign/feedback',
-                     'assigncontent' => 'mod/assign/content');
+
+$string['default'] = 'Enabled by default';
+$string['default_help'] = 'If set, problemsheet upload will be enabled by default for all new assignments.';
+$string['enabled'] = 'Problem sheets';
+$string['enabled_help'] = 'If enabled, the teacher can upload one or more problem sheets for this assignment. ';
+$string['pluginname'] = 'Problem sheets';
+$string['uploadproblemsheets'] = 'Upload problem sheet';
+

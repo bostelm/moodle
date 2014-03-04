@@ -1054,6 +1054,24 @@ class mod_assign_renderer extends plugin_renderer_base {
     }
 
     /**
+     * Render the content of a content plugin
+     *
+     * @param assign_content_plugin_content $contentplugin
+     * @return string
+     */
+    public function render_assign_content_plugin_content(assign_content_plugin_content $contentplugin) {
+        $o = '';
+
+        $content = $contentplugin->plugin->view(new stdClass());
+        $classsuffix = $contentplugin->plugin->get_subtype().'_'.$contentplugin->plugin->get_type();
+
+        $o .= $this->output->box_start('boxaligncenter plugincontentsummary view_' . $classsuffix);
+        $o .= $content;
+        $o .= $this->output->box_end();
+        return $o;
+    }
+
+    /**
      * Render a course index summary
      *
      * @param assign_course_index_summary $indexsummary

@@ -15,13 +15,27 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Definition of sub-plugins
+ * Post-install code for this module.
  *
- * @package   mod_assign
- * @copyright 2012 NetSpot {@link http://www.netspot.com.au}
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   assigncontent_problemsheet
+ * @copyright 2014 Henning Bostelmann
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$subplugins = array('assignsubmission' => 'mod/assign/submission',
-                     'assignfeedback' => 'mod/assign/feedback',
-                     'assigncontent' => 'mod/assign/content');
+defined('MOODLE_INTERNAL') || die();
+
+/**
+ * Set the initial order for the problemsheet plugin (top)
+ * @return bool
+ */
+function xmldb_assigncontent_problemsheet_install() {
+    global $CFG;
+
+    require_once($CFG->dirroot . '/mod/assign/adminlib.php');
+
+    // Set the correct initial order for the plugins.
+    $pluginmanager = new assign_plugin_manager('assigncontent');
+    $pluginmanager->move_plugin('problemsheet', 'up');
+
+    return true;
+}
