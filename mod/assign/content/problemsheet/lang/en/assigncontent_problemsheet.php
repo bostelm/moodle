@@ -28,5 +28,6 @@ $string['default_help'] = 'If set, problemsheet upload will be enabled by defaul
 $string['enabled'] = 'Problem sheets';
 $string['enabled_help'] = 'If enabled, the teacher can upload one or more problem sheets for this assignment. ';
 $string['pluginname'] = 'Problem sheets';
+$string['problems'] = 'Problem sheet';
 $string['uploadproblemsheets'] = 'Upload problem sheet';
 
