@@ -54,14 +54,14 @@ function assigncontent_solutionsheet_pluginfile($course,
     $solsheet = $assign->get_content_plugin_by_type('solutionsheet');
 
     if (! $solsheet->can_view_solutions()) {
-        return false;    
+        return false;
     }
-    
+
     $itemid = (int)array_shift($args);
     if ($itemid != 0) {
         return false;
     }
-    
+
     $relativepath = implode('/', $args);
 
     $fullpath = "/{$context->id}/assigncontent_solutionsheet/$filearea/$itemid/$relativepath";

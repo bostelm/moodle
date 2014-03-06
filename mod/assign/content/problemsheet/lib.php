@@ -52,7 +52,7 @@ function assigncontent_problemsheet_pluginfile($course,
         return false;
     }
 
-    if (!$assign = $DB->get_record('assign', array('id'=>$cm->instance))) {
+    if (!$assign = $DB->get_record('assign', array('id' => $cm->instance))) {
         return false;
     }
 

@@ -50,23 +50,23 @@ class assign_content_problemsheet extends assign_content_plugin {
     public function get_file_areas() {
         return array(ASSIGNCONTENT_PROBLEMSHEET_FILEAREA => $this->get_name());
     }
-    
+
     /**
      * Count the number of problem sheets.
      *
      * @return int
      */
     private function count_files() {
-    
+
         $fs = get_file_storage();
         $files = $fs->get_area_files($this->assignment->get_context()->id,
                         'assigncontent_problemsheet', ASSIGNCONTENT_PROBLEMSHEET_FILEAREA,
                         0, 'id', false);
-    
+
         return count($files);
     }
-    
-    
+
+
     /**
      * Get the settings for the problemsheet plugin in the "edit module" form;
      * that is, provide a means of uploading a problem sheet
@@ -124,7 +124,7 @@ class assign_content_problemsheet extends assign_content_plugin {
             $o .= $renderer->heading(get_string('problems', 'assigncontent_problemsheet'), 3);
             $o .= $renderer->box_start();
             $o .= $this->assignment->render_area_files('assigncontent_problemsheet',
-                                ASSIGNCONTENT_PROBLEMSHEET_FILEAREA, 0);
+                            ASSIGNCONTENT_PROBLEMSHEET_FILEAREA, 0);
             $o .= $renderer->box_end();
         }
 
