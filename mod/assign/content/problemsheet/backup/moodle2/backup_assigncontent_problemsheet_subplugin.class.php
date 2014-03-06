@@ -32,20 +32,26 @@ defined('MOODLE_INTERNAL') || die();
  * @package   assigncontent_problemsheet
  * @copyright 2014 Henning Bostelmann
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
-*/
+ */
 class backup_assigncontent_problemsheet_subplugin extends backup_subplugin {
-
 
     /**
      * Returns the subplugin information to attach to submission element.
      * @return backup_subplugin_element
      */
-    /* TBD
-     *
-    protected function define_grade_subplugin_structure() {
+    protected function define_assign_subplugin_structure() {
 
+        // Create XML elements.
+        $subplugin = $this->get_subplugin_element();
+        $subpluginwrapper = new backup_nested_element($this->get_recommended_name());
+        $subpluginelement = new backup_nested_element('content_problemsheet');
 
-    return $subplugin;
+        // Connect XML elements into the tree.
+        $subplugin->add_child($subpluginwrapper);
+        $subpluginwrapper->add_child($subpluginelement);
+
+        // Annotate the problem sheets.
+        $subpluginelement->annotate_files('assigncontent_problemsheet', 'problemsheets', null);
+        return $subplugin;
     }
-    */
 }

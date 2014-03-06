@@ -36,18 +36,36 @@ defined('MOODLE_INTERNAL') || die();
  * @package   assigncontent_solutionsheet
  * @copyright 2014 Henning Bostelmann
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
-*/
+ */
 class restore_assigncontent_solutionsheet_subplugin extends restore_subplugin {
 
     /**
-     * Returns the paths to be handled by the subplugin at workshop level
+     * Returns the paths to be handled by the subplugin
      * @return array
      */
-    /* TBD
-     protected function define_grade_subplugin_structure() {
+    protected function define_assign_subplugin_structure() {
 
-    return $paths;
+        $paths = array();
+
+        $elename = $this->get_namefor('assign');
+        $elepath = $this->get_pathfor('/content_solutionsheet');
+        // We used get_recommended_name() so this works.
+        $paths[] = new restore_path_element($elename, $elepath);
+
+        return $paths;
     }
-    */
+
+    /**
+     * Processes one content_solutionsheet element
+     * @param mixed $data
+     * @return void
+     */
+    public function process_assigncontent_solutionsheet_assign($data) {
+        // A dummy.
+    }
+
+    protected function after_execute_assign() {
+        $this->add_related_files('assigncontent_solutionsheet', 'solutionsheets', null);
+    }
 
 }
