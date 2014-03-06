@@ -193,7 +193,7 @@ class assign_content_solutionsheet extends assign_content_plugin {
      *
      * @return boolean whether the current user can view solution sheets in the current context
      */
-    protected function can_view_solutions() {
+    public function can_view_solutions() {
         $context = $this->assignment->get_context();
         $canview = false;
         if (has_capability('assigncontent/solutionsheet:viewsolutionanytime', $context)) {

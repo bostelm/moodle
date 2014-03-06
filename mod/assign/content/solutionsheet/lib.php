@@ -23,6 +23,8 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
+require_once($CFG->dirroot.'/mod/assign/locallib.php');
+
 /**
  * Serves solution sheet files.
  *
@@ -47,17 +49,19 @@ function assigncontent_solutionsheet_pluginfile($course,
     }
 
     require_login($course, false, $cm);
+
+    $assign = new assign($context, $cm, $course);
+    $solsheet = $assign->get_content_plugin_by_type('solutionsheet');
+
+    if (! $solsheet->can_view_solutions()) {
+        return false;    
+    }
+    
     $itemid = (int)array_shift($args);
     if ($itemid != 0) {
         return false;
     }
-
-    if (!$assign = $DB->get_record('assign', array('id' => $cm->instance))) {
-        return false;
-    }
-
-    // TODO check whether solutionsheet is available.
-
+    
     $relativepath = implode('/', $args);
 
     $fullpath = "/{$context->id}/assigncontent_solutionsheet/$filearea/$itemid/$relativepath";
