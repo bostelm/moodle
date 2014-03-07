@@ -233,4 +233,40 @@ class core_mathslib_testcase extends basic_testcase {
         $result = $formula->evaluate();
         $this->assertTrue(is_float($result));
     }
+
+    /**
+     * Tests the "best" function
+     */
+    public function test_best() {
+        $formula = new calc_formula('=best(3,0,0,0,0)');
+        $this->assertEquals(0, $formula->evaluate(), 1e-10);
+
+        $formula = new calc_formula('=best(1,1,2,3,4)');
+        $this->assertEquals(4, $formula->evaluate(), 1e-10);
+
+        $formula = new calc_formula('=best(2,1,2,3,4)');
+        $this->assertEquals(3.5, $formula->evaluate(), 1e-10);
+
+        $formula = new calc_formula('=best(3,1,2,3,4)');
+        $this->assertEquals(3, $formula->evaluate(), 1e-10);
+
+        $formula = new calc_formula('=best(4,1,2,3,4)');
+        $this->assertEquals(2.5, $formula->evaluate(), 1e-10);
+
+        $formula = new calc_formula('=best(2,10,10,20)');
+        $this->assertEquals(15, $formula->evaluate(), 1e-10);
+
+        // Test with first argument too large.
+        $formula = new calc_formula('=best(5,1,2,3,4)');
+        $this->assertEquals(2, $formula->evaluate(), 1e-10);
+
+        // Test with first argument invalid (zero or negative).
+        $formula = new calc_formula('=best(0,1,2,3,4)');
+        $this->assertEquals(0, $formula->evaluate(), 1e-10);
+
+        // Test with first argument invalid (zero or negative).
+        $formula = new calc_formula('=best(-1,1,2,3,4)');
+        $this->assertEquals(0, $formula->evaluate(), 1e-10);
+    }
+
 }

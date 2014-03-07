@@ -113,7 +113,7 @@ class EvalMath {
         'average'=>array(-1), 'max'=>array(-1),  'min'=>array(-1),
         'mod'=>array(2),      'pi'=>array(0),    'power'=>array(2),
         'round'=>array(1, 2), 'sum'=>array(-1), 'rand_int'=>array(2),
-        'rand_float'=>array(0));
+        'rand_float'=>array(0), 'best'=>array(-1));
 
     var $allowimplicitmultiplication;
 
@@ -560,5 +560,20 @@ class EvalMathFuncs {
     static function rand_float() {
         $randomvalues = unpack('v', md5(self::get_random_seed(), true));
         return array_shift($randomvalues) / 65536;
+    }
+
+    static function best() {
+        $args = func_get_args();
+        $res = 0;
+        if (!$num = array_shift($args)) {
+            return 0;
+        }
+        rsort($args);
+        for ($i = 0; $i < $num; $i++) {
+            if (isset($args[$i])) {
+                $res += $args[$i];
+            }
+        }
+        return $res/$num;
     }
 }
