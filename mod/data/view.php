@@ -477,9 +477,7 @@ if ($showactivity) {
         // Approve or disapprove any requested records
         $params = array(); // named params array
 
-        $approvecap = has_capability('mod/data:approve', $context);
-
-        if (($approve || $disapprove) && confirm_sesskey() && $approvecap) {
+        if (($approve || $disapprove) && confirm_sesskey() && has_capability('mod/data:approve', $context)) {
             $newapproved = $approve ? 1 : 0;
             $recordid = $newapproved ? $approve : $disapprove;
             if ($approverecord = $DB->get_record('data_records', array('id' => $recordid))) {   // Need to check this is valid
@@ -515,7 +513,7 @@ if ($showactivity) {
         $initialparams   = array();
 
     /// setup group and approve restrictions
-        if (!$approvecap && $data->approval) {
+        if ($data->approval && !has_capability('mod/data:viewnotapprovedentries', $context)) {
             if (isloggedin()) {
                 $approveselect = ' AND (r.approved=1 OR r.userid=:myid1) ';
                 $params['myid1'] = $USER->id;

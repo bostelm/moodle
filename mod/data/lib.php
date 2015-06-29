@@ -1581,7 +1581,7 @@ function data_print_preference_form($data, $perpage, $search, $sort='', $order='
     $options[DATA_TIMEMODIFIED] = get_string('timemodified', 'data');
     $options[DATA_FIRSTNAME]    = get_string('authorfirstname', 'data');
     $options[DATA_LASTNAME]     = get_string('authorlastname', 'data');
-    if ($data->approval and has_capability('mod/data:approve', $context)) {
+    if ($data->approval and has_capability('mod/data:viewnotapprovedentries', $context)) {
         $options[DATA_APPROVED] = get_string('approved', 'data');
     }
     echo '<optgroup label="'.get_string('other', 'data').'">';
@@ -2964,7 +2964,7 @@ function data_get_file_info($browser, $areas, $course, $cm, $context, $filearea,
     }
 
     //check if approved
-    if ($data->approval and !$record->approved and !data_isowner($record) and !has_capability('mod/data:approve', $context)) {
+    if ($data->approval and !$record->approved and !data_isowner($record) and !has_capability('mod/data:viewnotapprovedentries', $context)) {
         return null;
     }
 
@@ -3050,7 +3050,7 @@ function data_pluginfile($course, $cm, $context, $filearea, $args, $forcedownloa
         }
 
         //check if approved
-        if ($data->approval and !$record->approved and !data_isowner($record) and !has_capability('mod/data:approve', $context)) {
+        if ($data->approval and !$record->approved and !data_isowner($record) and !has_capability('mod/data:viewnotapprovedentries', $context)) {
             return false;
         }
 
@@ -3462,7 +3462,7 @@ function data_comment_validate($comment_param) {
     $context = context_module::instance($cm->id);
 
     //check if approved
-    if ($data->approval and !$record->approved and !data_isowner($record) and !has_capability('mod/data:approve', $context)) {
+    if ($data->approval and !$record->approved and !data_isowner($record) and !has_capability('mod/data:viewnotapprovedentries', $context)) {
         throw new comment_exception('notapproved', 'data');
     }
 

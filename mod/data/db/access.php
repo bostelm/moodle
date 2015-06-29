@@ -141,6 +141,18 @@ $capabilities = array(
         )
     ),
 
+    'mod/data:viewnotapprovedentries' => array(
+
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => array(
+            'teacher' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW
+        ),
+        'clonepermissionsfrom' => 'mod/data:approve'
+    ),
+
     'mod/data:manageentries' => array(
 
         'riskbitmask' => RISK_SPAM,

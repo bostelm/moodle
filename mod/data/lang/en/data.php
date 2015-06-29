@@ -93,6 +93,7 @@ $string['data:viewalluserpresets'] = 'View presets from all users';
 $string['data:viewallratings'] = 'View all raw ratings given by individuals';
 $string['data:viewanyrating'] = 'View total ratings that anyone received';
 $string['data:viewentry'] = 'View entries';
+$string['data:viewnotapprovedentries'] = 'View entries that have not yet been approved';
 $string['data:viewrating'] = 'View the total rating you received';
 $string['data:writeentry'] = 'Write entries';
 $string['date'] = 'Date';
