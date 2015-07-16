@@ -256,9 +256,10 @@ class subscriptions {
      * @param integer $groupid the id of a group, or 0 for all groups.
      * @param string $fields the list of fields to return for each user. As for get_users_by_capability.
      * @param string $sort sort order. As for get_users_by_capability.
+     * @param boolean $hidden whether to return only users that can view hidden activities
      * @return array list of users.
      */
-    public static function get_potential_subscribers($context, $groupid, $fields, $sort = '') {
+    public static function get_potential_subscribers($context, $groupid, $fields, $sort = '', $hidden = false) {
         global $DB;
 
         // Only active enrolled users or everybody on the frontpage.
@@ -273,7 +274,20 @@ class subscriptions {
                 JOIN ($esql) je ON je.id = u.id
             ORDER BY $sort";
 
-        return $DB->get_records_sql($sql, $params);
+        $users = $DB->get_records_sql($sql, $params);
+
+        if ($hidden) {
+            // Filter for users that can view hidden activities.
+            $filteredusers = array();
+            $hiddenviewers = get_users_by_capability($context, 'moodle/course:viewhiddenactivities');
+            foreach ($hiddenviewers as $hiddenviewer) {
+                if (array_key_exists($hiddenviewer->id, $users)) {
+                    $filteredusers[$hiddenviewer->id] = $users[$hiddenviewer->id];
+                }
+            }
+            $users = $filteredusers;
+        }
+        return $users;
     }
 
     /**
@@ -384,10 +398,11 @@ class subscriptions {
      * @param context_module $context the forum context, to save re-fetching it where possible.
      * @param string $fields requested user fields (with "u." table prefix).
      * @param boolean $includediscussionsubscriptions Whether to take discussion subscriptions and unsubscriptions into consideration.
+     * @param bool $hidden whether to include only users that can view hidden activities. Applies to force-subscribed forums only.
      * @return array list of users.
      */
     public static function fetch_subscribed_users($forum, $groupid = 0, $context = null, $fields = null,
-            $includediscussionsubscriptions = false) {
+            $includediscussionsubscriptions = false, $hidden = false) {
         global $CFG, $DB;
 
         if (empty($fields)) {
@@ -417,7 +432,7 @@ class subscriptions {
         $context = forum_get_context($forum->id, $context);
 
         if (self::is_forcesubscribed($forum)) {
-            $results = \mod_forum\subscriptions::get_potential_subscribers($context, $groupid, $fields, "u.email ASC");
+            $results = \mod_forum\subscriptions::get_potential_subscribers($context, $groupid, $fields, "u.email ASC", $hidden);
 
         } else {
             // Only active enrolled users or everybody on the frontpage.

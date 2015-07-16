@@ -100,7 +100,7 @@ $strsubscribers = get_string("subscribers", "forum");
 $PAGE->navbar->add($strsubscribers);
 $PAGE->set_title($strsubscribers);
 $PAGE->set_heading($COURSE->fullname);
-if (has_capability('mod/forum:managesubscriptions', $context)) {
+if (has_capability('mod/forum:managesubscriptions', $context) && \mod_forum\subscriptions::is_forcesubscribed($forum) === false) {
     if ($edit != -1) {
         $USER->subscriptionsediting = $edit;
     }
@@ -111,7 +111,7 @@ if (has_capability('mod/forum:managesubscriptions', $context)) {
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('forum', 'forum').' '.$strsubscribers);
 if (empty($USER->subscriptionsediting)) {
-    $subscribers = \mod_forum\subscriptions::fetch_subscribed_users($forum, $currentgroup, $context);
+    $subscribers = \mod_forum\subscriptions::fetch_subscribed_users($forum, $currentgroup, $context, null, false, !$cm->visible);
     echo $forumoutput->subscriber_overview($subscribers, $forum, $course);
 } else if (\mod_forum\subscriptions::is_forcesubscribed($forum)) {
     $subscriberselector->set_force_subscribed(true);
