@@ -68,9 +68,13 @@ if ( !$entriesbypage = $glossary->entbypage ) {
     $entriesbypage = $CFG->glossary_entbypage;
 }
 
-/// If we have received a page, recalculate offset
-if ($page != 0 && $offset == 0) {
+/// If we have received a page, recalculate offset and page size
+$pagelimit = $entriesbypage;
+if ($page > 0 && $offset == 0) {
     $offset = $page * $entriesbypage;
+} else if ($page < 0) {
+    $offset = 0;
+    $pagelimit = 0;
 }
 
 /// setting the default values for the display mode of the current glossary
@@ -343,7 +347,7 @@ if ($showcommonelements) {
 /// The print icon
     if ( $showcommonelements and $mode != 'search') {
         if (has_capability('mod/glossary:manageentries', $context) or $glossary->allowprintview) {
-            echo " <a class='printicon' title =\"". get_string("printerfriendly","glossary") ."\" href=\"print.php?id=$cm->id&amp;mode=$mode&amp;hook=".urlencode($hook)."&amp;sortkey=$sortkey&amp;sortorder=$sortorder&amp;offset=$offset\">" . get_string("printerfriendly","glossary")."</a>";
+            echo " <a class='printicon' title =\"". get_string("printerfriendly","glossary") ."\" href=\"print.php?id=$cm->id&amp;mode=$mode&amp;hook=".urlencode($hook)."&amp;sortkey=$sortkey&amp;sortorder=$sortorder&amp;offset=$offset&amp;pagelimit=$pagelimit\">" . get_string("printerfriendly","glossary")."</a>";
         }
     }
 /// End glossary controls
